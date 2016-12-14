@@ -12,7 +12,7 @@ fi
 
 MARURL="$1"
 APPID=${2}
-if [ $# > 2 ]; then
+if [[ $# -gt 2 ]]; then
   NEW_VIP="${3}"
   echo Updating VIP to ${NEW_VIP}
 else
