@@ -30,10 +30,10 @@ EOSQL
 }
 
 setup_standby() {
-  if [ -z "$PGREPL_MASTER_IP" ]; then
+  if [ -z ${PGREPL_MASTER_IP+x} ]; then
       PGREPL_MASTER_IP=$POSTGRES_PORT_5432_TCP_ADDR
   fi
-  if [ -z "$PGREPL_MASTER_PORT" ]; then
+  if [ -z ${PGREPL_MASTER_PORT+x} ]; then
       PGREPL_MASTER_PORT=$POSTGRES_PORT_5432_TCP_PORT
   fi
   echo "****** Caching pgrepl credentials in .pgpass"
@@ -53,10 +53,12 @@ setup_standby() {
   fi
 
   echo "****** Setting recovery configuration"
-  gosu postgres echo "standby_mode='on'"                                                              >> ${recovery_file}
-  gosu postgres echo "primary_conninfo='host=$PGREPL_MASTER_IP port=$PGREPL_MASTER_PORT user=pgrepl'" >> ${recovery_file}
-  gosu postgres echo "recovery_target_timeline = 'latest'"                                            >> ${recovery_file}
-  gosu postgres echo "trigger_file = '$trigger_file'"                                                 >> ${recovery_file}
+  echo "standby_mode='on'"                                                              >> ${recovery_file}
+  echo "primary_conninfo='host=$PGREPL_MASTER_IP port=$PGREPL_MASTER_PORT user=pgrepl'" >> ${recovery_file}
+  echo "recovery_target_timeline = 'latest'"                                            >> ${recovery_file}
+  echo "trigger_file = '$trigger_file'"                                                 >> ${recovery_file}
+  chown postgres:postgres ${recovery_file}
+  chmod 0600              ${recovery_file}
 
 }
 
