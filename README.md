@@ -133,14 +133,14 @@ There are example scripts in the [docker](/docker) directory that perform these 
 # Usage under DC/OS
 
 The image supports usage under [DC/OS](https://dcos.io/) (1.8 or later), deployed via [Marathon](https://mesosphere.github.io/marathon/). 
-The [marathon](/docker) directory constains scripts to deploy primary and standby containers and to promote standby containers to primary operation:
+The [marathon](/marathon) directory constains scripts to deploy primary and standby containers and to promote standby containers to primary operation:
 * All containers are provisioned using [local persistent volumes](https://mesosphere.github.io/marathon/docs/persistent-volumes.html). This has the effect of locking the container
   to a specific host, but it means that if the container is restarted (after being suspended or crashing), the PGDATA directory is still available.
 * All containers are provisioned with a [virtual IP](https://dcos.io/docs/1.8/usage/service-discovery/load-balancing-vips/virtual-ip-addresses) (VIP). 
   The promote script has the option to modify the VIP when moving a container from standby, allowing it to take over the VIP of the primary. This means that there
   is no need to update the configuration of downstream services (including other standbys).
 
-Assuming that Marathon is available at http://marathon.mesos:8080, to create a primary with Marathon application ID pgrepl1 and VIP `primary.pgrepl`, run: 
+Assuming that Marathon is available at http://marathon.mesos:8080, to create a primary with Marathon application ID `pgrepl1` and VIP `primary.pgrepl`, run: 
     
     # ./marathon/primary.sh http://marathon.mesos:8080 pgrepl1 /primary.pgrepl:5432
 
@@ -148,27 +148,27 @@ At this point, applications can access the primary at the URL:
 
     primary.pgrepl.marathon.l4lb.thisdcos.directory:5432
 
-Creating a standby against this primary can be done as follows: 
+Creating a standby `pgrepl2` against this primary can be done as follows: 
  
     # ./marathon/standby.sh http://marathon.mesos:8080 pgrepl1 pgrepl2 /standby.pgrepl:5432
 
-The pgrepl2 standby is configured to reach the primary using the URL above, and is itself available (for read-only access) at: 
+The `pgrepl2` standby is configured to reach the primary using the URL above, and is itself available (for read-only access) at: 
 
     standby.pgrepl.marathon.l4lb.thisdcos.directory:5432
 
-Similarly, other standbys can be created, against pgrepl2 or the pgrepl1 primary.
+Similarly, other standbys can be created, against `pgrepl2` or the `pgrepl1` primary.
 
-Marathon will work to make sure that pgrepl1 is running. However, in the case that the Mesos agent hosting pgrepl1 is taken offline, it will be necessary to promote one of the
-standbys to primary. This can be done as follows: 
+Marathon will work to make sure that `pgrepl1` is restarted should it fail, albeit on the same host, due to the persistent volume. In the case that the Mesos agent hosting
+`pgrepl1` is taken offline, it will be necessary to promote one of the standbys to primary. This can be done as follows: 
 
     # ./marathon/promote.sh http://marathon.mesos:8080 pgrepl2 /primary.pgrepl:5432
 
-This will restart the pgrepl2, changing its PGREPL_ROLE environment variable from STANDBY to PRIMARY and causing it to enter primary mode. It will also associate the container with
-the VIP primary.pgrepl:5432 formerly associated with pgrepl1, meaning that any downstream apps that had been configured to communicate on that address do not require configuration
-changes.
+This will restart the `pgrepl2` container, changing its `PGREPL_ROLE` environment variable from `STANDBY` to `PRIMARY` and causing it to enter primary mode. It will also associate
+the container with the VIP `primary.pgrepl:5432` formerly associated with `pgrepl1`, such that any downstream apps that had been configured to communicate on that address do not
+require configuration changes.
 
-In addition to HA, this process can be used to upgrade the disk allocation for the database. The primary and standby scripts use the environment variable PGREPL_DISK_SIZE to
-indicate the disk allocation size, in megabytes. Spinning up a new standby with a larger disk and then promoting it to primary allows the the database disk allocation to be
+In addition to HA, this process can be used to upgrade the disk allocation for the database. The primary and standby scripts use the environment variable `PGREPL_DISK_SIZE` to
+indicate the disk allocation size in megabytes. Spinning up a new standby with a larger disk and then promoting it to primary allows the the database disk allocation to be
 increased, which is not possible for an existing Mesos task: 
 
     # PGREPL_DISK_SIZE=250 ./marathon/standby.sh https://marathon.mesos:8080 pgrepl1 pgrepl_bigger /standby.pgrepl:5432
