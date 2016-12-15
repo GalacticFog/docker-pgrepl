@@ -14,7 +14,7 @@ PRIMARY_CID=${1}
 if [[ -z ${2+x} ]]; then
   NAME=""
 else 
-  NAME="--name $1"
+  NAME="--name $2"
 fi
 
 cid=$(docker run -d --link $PRIMARY_CID:postgres -P $NAME -e PGREPL_ROLE=STANDBY  galacticfog/postgres_repl)
