@@ -27,6 +27,12 @@ if [ "$PHOSTROLE" != "PRIMARY" ]; then
 fi
 echo Primary VIP is $PRIMARY_HOST:$PRIMARY_PORT
 
+if [[ -z ${PGREPL_DISK_SIZE+x} ]]; then 
+  DISK_SIZE=100
+else 
+  DISK_SIZE=$(echo $PRIMARYAPP | jq -r '.app.container.volumes[0].persistent.size')
+fi
+
 read -r -d '' PAYLOAD <<EOM || true
 {
   "env": {
@@ -48,7 +54,7 @@ read -r -d '' PAYLOAD <<EOM || true
         "containerPath": "pgdata",
         "mode": "RW",
         "persistent": {
-          "size": 100
+          "size": ${DISK_SIZE}
         }
       }
     ],

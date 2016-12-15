@@ -33,7 +33,7 @@ read -r -d '' PAYLOAD <<EOM || true
         "containerPath": "pgdata",
         "mode": "RW",
         "persistent": {
-          "size": 100
+          "size": ${PGREPL_DISK_SIZE-100}
         }
       }
     ],
