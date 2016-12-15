@@ -1,14 +1,24 @@
 # docker-pgrepl
 
-This Dockerfile uses the standard postgres 9.4 docker image and adds a script that sets up streaming repliaction between two or more docker containers runningPostgres.
+This Dockerfile uses the standard postgres 9.4 docker image and adds a script that sets up streaming repliaction between two or more docker containers running PostgreSQL.
 
-This is a PoC, and is not intended to be used for production scenarios. 
+This is based off the work by @mgudmund at https://github.com/mgudmund/docker-pgrepl. It has been modified to better support use on DC/OS with persistent volumes, via:
+* better support for re-entrant containers
+* more environment variable support
+* more flexible PGDATA placement
+In addition, there are utility scripts for deployment and management on: 
+* docker
+* DC/OS (Marathon)
+
+Additionally, the image has been customized to bootstrap the databases necessary for the gestalt-framework; this can be disabled by removing the gestalt.sh script.
 
 ---
 
+# Local docker usage
+
 To clone this git repo run:
 
-    # git clone https://github.com/mgudmund/docker-pgrepl.git
+    # git clone https://github.com/GalacticFog/docker-pgrepl.git
 
 To build the docker image do:
 
@@ -103,10 +113,11 @@ When Docker Swarm gets some more love, and support networking between the swarm 
 
 ---
 
-There are some improvements to be made to this image. 
- 
- 1. Add support for wal archiving
- 2. Add tool for automatic failover, like repmgr.
+There are some improvements to be made to this project:
+
+- [ ] Add support for wal archiving
+- [ ] Add tool for automatic failover, like repmgr.
+- [ ] 
 
 The image supports all feautures of the official postgres image, so setting postgres password etc, works, but not done in the above examples.
 
