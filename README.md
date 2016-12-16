@@ -1,11 +1,12 @@
 # docker-pgrepl
 
-This Dockerfile uses the standard postgres 9.4 docker image and adds a script that sets up streaming repliaction between two or more docker containers running PostgreSQL.
+This Dockerfile uses the standard postgres 9.4 docker image and adds a script that sets up streaming replication between two or more docker containers running PostgreSQL.
 
 This is based off the work by @mgudmund at https://github.com/mgudmund/docker-pgrepl. It has been modified to better support use on DC/OS with persistent volumes, via:
 * better support for re-entrant containers
 * more environment variable support
 * more flexible PGDATA placement
+
 In addition, there are utility scripts for deployment and management on: 
 * docker
 * DC/OS (Marathon)
@@ -184,7 +185,7 @@ There are some improvements to be made to this project:
 - [ ] Mesos framework for deployment, monitoring and automatic failover 
 - [ ] DC/OS [Universe](https://github.com/mesosphere/universe) package
 
-The image supports all feautures of the official postgres image, so setting [postgres](https://hub.docker.com/_/postgres/) password etc, works, but not done in the above examples.
+The image supports all feautures of the [official postgres image](https://hub.docker.com/_/postgres/), so setting postgres password etc, works, but not done in the above examples.
 
 Replication connection uses a user called pgrepl, and needs a password that is, for now, genereated based on a token. There is a default token, but you can specify your own using the environment variable `PGREPL_TOKEN`.
 
