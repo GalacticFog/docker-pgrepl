@@ -7,3 +7,4 @@ COPY docker-entrypoint.sh /
 ADD gestalt.sh            /docker-entrypoint-initdb.d/
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
+CMD ["postgres"]
